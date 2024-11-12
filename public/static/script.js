@@ -251,3 +251,68 @@ document
     e.preventDefault();
     applyChatSettingChanges();
   });
+
+  // 注册用户
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const username = document.getElementById('registerUsername').value;
+  const password = document.getElementById('registerPassword').value;
+
+  const response = await fetch('/register', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, password }),
+  });
+
+  if (response.ok) {
+      alert('Registration successful!');
+      showLoginPage();
+  } else {
+      alert('Registration failed!');
+  }
+});
+
+// 登录用户
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const username = document.getElementById('loginUsername').value;
+  const password = document.getElementById('loginPassword').value;
+
+  const response = await fetch('/login', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, password }),
+  });
+
+  if (response.ok) {
+      const user = await response.json();
+      saveUserInfo(user.username);
+      showChatPage();
+  } else {
+      alert('Login failed!');
+  }
+});
+
+// 显示聊天页面
+function showChatPage() {
+  document.getElementById('authContainer').classList.add('hidden');
+  document.getElementById('chatContainer').classList.remove('hidden');
+  const username = localStorage.getItem('username');
+  document.getElementById('currentUser').textContent = `Logged in as: ${username}`;
+}
+
+// 显示登录页面
+function showLoginPage() {
+  document.getElementById('registerPage').classList.add('hidden');
+  document.getElementById('loginPage').classList.remove('hidden');
+}
+
+// 保存用户信息
+function saveUserInfo(username) {
+  localStorage.setItem('username', username);
+}
+

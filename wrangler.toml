@@ -5,3 +5,7 @@ compatibility_date = "2024-06-01"
 
 [ai]
 binding = "AI"
+
+[[kv_namespaces]]  
+binding = "USERS"  
+id = "1fdc4e6508934566909274e451944661"  
