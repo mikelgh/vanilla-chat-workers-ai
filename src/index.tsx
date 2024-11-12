@@ -35,7 +35,7 @@ app.get("/", (c) => {
                 type="submit"
                 className="m-2 px-4 py-2 bg-chat-button text-black rounded hover:bg-gray-300"
               >
-                Send
+                Send 发送
               </button>
             </form>
             <div className="text-xs text-gray-500 mt-2">
