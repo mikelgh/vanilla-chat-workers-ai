@@ -35,7 +35,7 @@ app.get("/", (c) => {
                 type="submit"
                 className="m-2 px-4 py-2 bg-chat-button text-black rounded hover:bg-gray-300"
               >
-                Send 发送
+                Send
               </button>
             </form>
             <div className="text-xs text-gray-500 mt-2">
@@ -50,7 +50,7 @@ app.get("/", (c) => {
         <div className="w-80 bg-chat-settings p-6 shadow-xl flex flex-col justify-between">
           <div>
             <div className="mb-4">
-              <h2 className="text-xl font-semibold">Chat Settings</h2>
+              <h2 className="text-xl font-semibold">Chat Settings 设置</h2>
               <p className="text-sm text-chat-helpertext mt-1">
                 Try out different models and configurations for your chat
                 application
