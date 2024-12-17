@@ -1,78 +1,110 @@
-# Vanilla JavaScript Chat Application using Cloudflare Workers AI
+# AI聊天API文档
 
-A web based chat interface built on [Cloudflare Pages](https://pages.cloudflare.com) that allows for exploring [Text Generation models](https://developers.cloudflare.com/workers-ai/models/#text-generation) on [Cloudflare Workers AI](https://developers.cloudflare.com/workers-ai/). Design is built using [tailwind](https://tailwindcss.com/).
+## 基础信息
+- 基础URL: `https://aichat.risingstarintl.biz`
+- API使用Cloudflare的Llama 2模型
+- 所有接口支持跨域访问
+- 响应格式: JSON
 
-[<img src="https://img.youtube.com/vi/5UTExUQ8Fwo/0.jpg">](https://youtu.be/5UTExUQ8Fwo "Workers AI - Getting Started - Vanilla Chat App")
+## API接口
 
-This demo makes use of [LocalStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage) to maintain state. We have better solutions available (moar coming soon).
-
-This is a template repository. Please feel free to create your own repository from this one by using the "Use this template" button. It's right next to the ⭐️ this repo button, which you could totally do as well if you wanted to.
-
-This is, like all of us, a Work in Progress.
-
-## Installation
-
-```bash
-npm install
-# If this is your first time here
-npx wrangler login
+### 1. 发送消息给AI
+- **URL**: `/chat`
+- **方法**: `POST`
+- **Content-Type**: `application/json`
+- **请求体**:
+```json
+{
+    "message": "你的问题或消息内容"
+}
 ```
 
-## Develop
-
-This uses the local Vite server for rapid development
-
-```bash
-npm run dev
+- **响应示例**:
+```json
+{
+    "userMessage": {
+        "id": "消息ID1",
+        "role": "user",
+        "content": "你的问题或消息内容",
+        "timestamp": 1683123456789
+    },
+    "aiMessage": {
+        "id": "消息ID2",
+        "role": "assistant",
+        "content": "AI的回复内容",
+        "timestamp": 1683123456790
+    }
+}
 ```
 
-### Preview
-
-This builds and runs in Wrangler your site locally, just as it will run on production
-
-```bash
-npm run preview
+### 2. 获取聊天历史
+- **URL**: `/chat/history`
+- **方法**: `GET`
+- **响应示例**:
+```json
+[
+    {
+        "id": "消息ID1",
+        "role": "user",
+        "content": "你好",
+        "timestamp": 1683123456789
+    },
+    {
+        "id": "消息ID2",
+        "role": "assistant",
+        "content": "你好！我是AI助手，有什么我可以帮你的吗？",
+        "timestamp": 1683123456790
+    }
+]
 ```
 
-## Deploy
+## 调用示例
 
-This hosts your site on [Cloudflare Pages](https://pages.cloudflare.com)
-
-```bash
-npm run deploy
+### 1. 发送消息给AI
+```javascript
+fetch('https://aichat.risingstarintl.biz/chat', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+        message: '你好，请介绍一下你自己'
+    })
+})
+.then(response => response.json())
+.then(data => {
+    console.log('用户消息:', data.userMessage);
+    console.log('AI回复:', data.aiMessage);
+});
 ```
 
-###  Debug
-
-```bash
-npx wrangler pages deployment tail
+### 2. 获取聊天历史
+```javascript
+fetch('https://aichat.risingstarintl.biz/chat/history')
+    .then(response => response.json())
+    .then(messages => console.log('聊天历史:', messages));
 ```
 
-## Advanced
+## 数据结构说明
 
-If you are on a Mac, you can generate the list of models in [script.js](./public/static/script.js) by running the following commands:
-
-```bash
-# If this is your first time here. You won't regret it.
-brew install jq
+### ChatMessage
+消息对象的数据结构：
+```typescript
+interface ChatMessage {
+    id: string;        // 消息唯一标识符（UUID）
+    role: string;      // 消息角色：'user' 或 'assistant'
+    content: string;   // 消息内容
+    timestamp: number; // 消息时间戳（毫秒）
+}
 ```
 
-```bash
-# Filter all Text Generation models into "ga" and "beta"
-npx wrangler ai models --json | jq ' 
-  reduce .[] as $item (
-    {beta: [], ga: []};
-    if ($item.task.name == "Text Generation") then
-      if ($item.properties | any(.property_id == "beta" and .value == "true")) then
-        .beta += [$item.name]
-      else
-        .ga += [$item.name]
-      end
-    else
-      .
-    end
-  ) |
-  .beta |= sort |
-  .ga |= sort
-'
-```
+## 注意事项
+1. 所有请求都需要设置 `Content-Type: application/json` 头
+2. 时间戳使用毫秒级的Unix时间戳
+3. 消息ID是自动生成的UUID格式字符串
+4. 消息历史按时间顺序返回
+5. `role` 字段说明：
+   - `user`: 用户发送的消息
+   - `assistant`: AI助手的回复
+6. API使用的是Cloudflare的Llama 2模型（@cf/meta/llama-2-7b-chat-int8）
+7. 所有接口都支持跨域访问（CORS）
