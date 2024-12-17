@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI聊天API测试</title>
+    <meta charset="UTF-8">
+    <style>
+        .error { color: red; }
+        .success { color: green; }
+        pre { white-space: pre-wrap; word-wrap: break-word; }
+    </style>
+</head>
+<body>
+    <h1>AI聊天API测试</h1>
+    
+    <div>
+        <textarea id="message" rows="4" cols="50" placeholder="输入你的消息"></textarea>
+        <br>
+        <button onclick="sendMessage()">发送消息</button>
+    </div>
+
+    <h2>响应结果：</h2>
+    <pre id="result"></pre>
+
+    <h2>聊天历史：</h2>
+    <pre id="history"></pre>
+
+    <script>
+        const API_URL = 'https://vanilla-chat-workers-ai.mikelgh.workers.dev';
+
+        async function sendMessage() {
+            const message = document.getElementById('message').value;
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                resultDiv.textContent = '正在发送请求...';
+                console.log('发送请求到:', `${API_URL}/chat`);
+                
+                const response = await fetch(`${API_URL}/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message })
+                });
+                
+                console.log('收到响应:', response.status, response.statusText);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}, statusText: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('响应数据:', data);
+                resultDiv.className = 'success';
+                resultDiv.textContent = JSON.stringify(data, null, 2);
+                
+                // 刷新历史记录
+                getHistory();
+            } catch (error) {
+                console.error('错误详情:', error);
+                resultDiv.className = 'error';
+                resultDiv.textContent = `错误：${error.message}\n\n堆栈：${error.stack}`;
+            }
+        }
+
+        async function getHistory() {
+            const historyDiv = document.getElementById('history');
+            
+            try {
+                console.log('获取历史记录...');
+                const response = await fetch(`${API_URL}/chat/history`);
+                
+                console.log('历史记录响应:', response.status, response.statusText);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}, statusText: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('历史数据:', data);
+                historyDiv.className = 'success';
+                historyDiv.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                console.error('获取历史记录错误:', error);
+                historyDiv.className = 'error';
+                historyDiv.textContent = `错误：${error.message}\n\n堆栈：${error.stack}`;
+            }
+        }
+
+        // 页面加载时获取历史记录
+        getHistory();
+    </script>
+</body>
+</html> 

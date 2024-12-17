@@ -8,4 +8,4 @@ binding = "AI"
 
 [[kv_namespaces]]  
 binding = "MESSAGES"  
-id = "YOUR_MESSAGES_KV_ID"  
+id = "ea32fd241fb74a48902ee4bd791f7930"  
